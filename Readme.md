@@ -2,7 +2,7 @@
 
 A comprehensive web-based car shop management system built with modern technologies to streamline automotive service operations.
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Works on Windows/macOS/Linux)
 
 ### Prerequisites
 - Node.js (v18 or higher)
@@ -19,44 +19,59 @@ A comprehensive web-based car shop management system built with modern technolog
    npm run install:all
    ```
 
-2. **Set up database**
-   ```bash
-   # Using Docker (recommended)
-   docker-compose up -d
-   
-   # Or set up PostgreSQL locally
-   ```
+2. **Set up a PostgreSQL database**
+   - Option A: Use a managed database (recommended) such as Supabase or Neon. Copy your connection string.
+   - Option B: Use a local PostgreSQL instance.
 
-3. **Configure environment**
-   ```bash
-   # Backend
-   cd api
-   cp env.example .env
-   # Edit .env with your database credentials
-   
-   # Frontend
-   cd ../frontend
-   cp env.example .env
-   ```
+3. **Configure environment variables**
+   - Backend (`api/.env`)
+     ```env
+     # If using Supabase/Neon, ensure special chars in password are URL-encoded (e.g. @ -> %40)
+     # Supabase usually requires sslmode=require
+     DATABASE_URL=postgresql://USERNAME:PASSWORD@HOST:5432/DB_NAME?sslmode=require
+     JWT_SECRET=some-long-random-string
+     PORT=3001
+     NODE_ENV=development
+     FRONTEND_URL=http://localhost:3000
+     ```
+     Example (Supabase with @ in password):
+     ```env
+     DATABASE_URL=postgresql://postgres:Pranav%4005@db.mjewvzujpljuqutsfhgn.supabase.co:5432/postgres?sslmode=require
+     ```
+   - Frontend (`frontend/.env`)
+     ```env
+     VITE_API_BASE_URL=http://localhost:3001/api
+     VITE_APP_NAME="Car Shop Management System"
+     ```
 
 4. **Initialize database**
    ```bash
    cd api
    npx prisma generate
-   npm run db:migrate
-   npm run db:seed
+   # Apply schema to your database
+   npx prisma migrate dev --name init
+   # (Optional) open Prisma Studio to inspect tables
+   npx prisma studio
    ```
 
 5. **Start development servers**
-   ```bash
-   # From root directory
-   npm run dev
-   ```
+   - From root directory (starts both API and frontend):
+     ```bash
+     npm run dev
+     ```
+   - Or on Windows, you can also run the helper script from the root folder:
+     ```powershell
+     ./start-project.ps1
+     ```
 
 6. **Access the application**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
-   - API Health Check: http://localhost:3001/health
+   - Frontend: `http://localhost:3000`
+   - Backend API: `http://localhost:3001`
+   - API Health Check: `http://localhost:3001/health`
+
+### Authentication flow (what to expect)
+- Use "Create account" on the dashboard or go to `/register`. After registering, you will be logged in automatically and see your name in the header (top-right).
+- Use the header "Logout" button to sign out. You can sign back in via `/login` using the same email and password.
 
 ## 📁 Project Structure
 
@@ -142,8 +157,7 @@ carshop/
 - `npm run dev` - Start development server with nodemon
 - `npm run build` - Build TypeScript to JavaScript
 - `npm run start` - Start production server
-- `npm run db:migrate` - Run database migrations
-- `npm run db:seed` - Seed database with sample data
+- `npm run db:migrate` - Run database migrations (uses Prisma under the hood)
 - `npm run db:studio` - Open Prisma Studio
 
 ## 🔧 Development
@@ -170,6 +184,23 @@ npx prisma migrate reset
 # Open Prisma Studio
 npx prisma studio
 ```
+
+## ❗ Troubleshooting
+
+### Prisma P1012: Environment variable not found: DATABASE_URL
+- Ensure `api/.env` exists and contains a single-line `DATABASE_URL`.
+- If your DB password contains special characters (e.g., `@`), URL-encode them (`@` -> `%40`).
+- For Supabase/Neon, append `?sslmode=require` if not already present.
+- After updating `.env`, re-run:
+  ```bash
+  cd api
+  npx prisma generate
+  npx prisma migrate dev --name init
+  ```
+
+### CORS or cookie issues in auth
+- Make sure `FRONTEND_URL=http://localhost:3000` in `api/.env` and restart the API.
+- Frontend must call the API at `VITE_API_BASE_URL=http://localhost:3001/api`.
 
 ## 🌐 API Endpoints
 
