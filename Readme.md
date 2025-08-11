@@ -1,8 +1,17 @@
 # Car Shop Management System
 
-A comprehensive web-based car shop management system built with modern technologies to streamline automotive service operations.
+Car Shop is a full‑stack web application to manage automotive shop operations: customers, vehicles, services, and a live dashboard with recent activity and revenue. It includes secure authentication, validated APIs, and a responsive UI.
 
-## 🚀 Quick Start (Works on Windows/macOS/Linux)
+## 🧰 Tech Stack (What we used)
+
+- Frontend: React 18, TypeScript, Vite, React Router, Tailwind CSS, Heroicons
+- State/Data: Axios (simple API client)
+- Forms/Validation: React Hook Form + Zod (for form pages), native validation in others
+- Backend: Node.js (Express), TypeScript, Prisma ORM, PostgreSQL
+- Auth/Security: JWT (HTTP‑only cookies), Helmet, Rate limiting
+- Tooling: ESLint, Prettier
+
+## 🚀 Quick Start (Windows/macOS/Linux)
 
 ### Prerequisites
 - Node.js (v18 or higher)
@@ -26,12 +35,15 @@ A comprehensive web-based car shop management system built with modern technolog
 3. **Configure environment variables**
    - Backend (`api/.env`)
      ```env
-     # If using Supabase/Neon, ensure special chars in password are URL-encoded (e.g. @ -> %40)
-     # Supabase usually requires sslmode=require
+     # PostgreSQL connection (URL-encode special characters; for managed DBs append ?sslmode=require)
      DATABASE_URL=postgresql://USERNAME:PASSWORD@HOST:5432/DB_NAME?sslmode=require
+
+     # Auth + Server
      JWT_SECRET=some-long-random-string
      PORT=3001
      NODE_ENV=development
+
+     # CORS origin for the frontend (Vite runs on 3000 by default in this repo)
      FRONTEND_URL=http://localhost:3000
      ```
      Example (Supabase with @ in password):
@@ -43,31 +55,55 @@ A comprehensive web-based car shop management system built with modern technolog
      VITE_API_BASE_URL=http://localhost:3001/api
      VITE_APP_NAME="Car Shop Management System"
      ```
-
+*TO run the project after above steps
 4. **Initialize database**
-   ```bash
+   bash/terminal
    cd api
    npx prisma generate
    # Apply schema to your database
    npx prisma migrate dev --name init
    # (Optional) open Prisma Studio to inspect tables
-   npx prisma studio
-   ```
+   npx prisma studio(this is optinal)
+   
 
 5. **Start development servers**
-   - From root directory (starts both API and frontend):
-     ```bash
+   - From the root (starts both API and Frontend with one command):
+     bash
      npm run dev
-     ```
-   - Or on Windows, you can also run the helper script from the root folder:
-     ```powershell
-     ./start-project.ps1
-     ```
+     
+   - Or start each separately:(in differnt bash or teminal)
+     bash/terminal 1
+     # API
+     cd api
+     npm run dev (you can run this after directly npx prisma migrate dev --name init command from step 4)
+
+     # Frontend (in a second terminal)
+     cd frontend
+     npm run dev
+     
 
 6. **Access the application**
    - Frontend: `http://localhost:3000`
    - Backend API: `http://localhost:3001`
    - API Health Check: `http://localhost:3001/health`
+
+### Common Tasks (Commands)
+
+```bash
+# Install dependencies (root, frontend, backend)
+npm run install:all
+
+# Start both servers (root)
+npm run dev
+
+# Backend database manage (api/)
+npx prisma generate
+npx prisma migrate dev --name init
+npx prisma studio
+
+# Build for production (root)
+npm run build
+```
 
 ### Authentication flow (what to expect)
 - Use "Create account" on the dashboard or go to `/register`. After registering, you will be logged in automatically and see your name in the header (top-right).
@@ -100,27 +136,20 @@ carshop/
 └── package.json           # Root workspace configuration
 ```
 
-## 🛠 Technology Stack
+## 🛠 Technology Stack (Detailed)
 
 ### Frontend
-- **React 18** with TypeScript
-- **Vite** for fast development and building
-- **React Router** for client-side routing
-- **TanStack Query** for server state management
-- **React Hook Form** with Zod validation
-- **Tailwind CSS** for styling
-- **Headless UI** for accessible components
-- **Heroicons** for icons
+- React 18 + TypeScript, Vite bundler and dev server
+- React Router for routing
+- Tailwind CSS for styling, Heroicons for icons
+- Axios API client
+- React Hook Form + Zod (form validation where applicable)
 
 ### Backend
-- **Node.js** with Express
-- **TypeScript** for type safety
-- **Prisma** ORM with PostgreSQL
-- **JWT** for authentication
-- **bcrypt** for password hashing
-- **Helmet** for security headers
-- **Pino** for structured logging
-- **Rate limiting** for API protection
+- Express (TypeScript)
+- Prisma ORM with PostgreSQL
+- JWT auth using HTTP‑only cookies
+- Helmet, rate limiting, structured logging (Pino)
 
 ## 🎯 Features
 
@@ -176,7 +205,7 @@ cd api
 npx prisma generate
 
 # Create a new migration
-npx prisma migrate dev --name migration_name
+npx prisma migrate dev --name init
 
 # Reset database (WARNING: This will delete all data)
 npx prisma migrate reset

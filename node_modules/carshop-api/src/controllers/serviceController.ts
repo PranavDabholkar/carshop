@@ -79,6 +79,14 @@ export const serviceController = {
     try {
       const { type, description, cost, scheduledAt, customerId, vehicleId } = req.body
 
+      // Validate foreign keys exist
+      const [customer, vehicle] = await Promise.all([
+        prisma.customer.findUnique({ where: { id: customerId } }),
+        prisma.vehicle.findUnique({ where: { id: vehicleId } }),
+      ])
+      if (!customer) return res.status(400).json({ success: false, message: 'Customer does not exist' })
+      if (!vehicle) return res.status(400).json({ success: false, message: 'Vehicle does not exist' })
+
       const service = await prisma.service.create({
         data: {
           type,
@@ -87,7 +95,7 @@ export const serviceController = {
           scheduledAt: new Date(scheduledAt),
           customerId,
           vehicleId,
-          userId: 'temp-user-id', // TODO: Get from auth middleware
+          userId: (req as any).userId || 'temp-user-id',
         },
         include: {
           customer: true,
@@ -113,6 +121,15 @@ export const serviceController = {
     try {
       const { id } = req.params
       const { type, description, cost, scheduledAt, customerId, vehicleId } = req.body
+
+      if (customerId) {
+        const customer = await prisma.customer.findUnique({ where: { id: customerId } })
+        if (!customer) return res.status(400).json({ success: false, message: 'Customer does not exist' })
+      }
+      if (vehicleId) {
+        const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } })
+        if (!vehicle) return res.status(400).json({ success: false, message: 'Vehicle does not exist' })
+      }
 
       const service = await prisma.service.update({
         where: { id },

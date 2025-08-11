@@ -81,13 +81,14 @@ export const customerController = {
         })
       }
 
+      const userId = (req as any).userId || 'temp-user-id'
       const customer = await prisma.customer.create({
         data: {
           name,
           email,
           phone,
           address,
-          userId: 'temp-user-id', // TODO: Get from auth middleware
+          userId,
         },
       })
 

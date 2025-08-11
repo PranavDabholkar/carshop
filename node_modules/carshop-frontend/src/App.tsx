@@ -7,7 +7,7 @@ import Vehicles from '@/pages/Vehicles'
 import Services from '@/pages/Services'
 import Login from '@/pages/Login'
 import Register from '@/pages/Register'
-import NotFound from '@/pages/NotFound'
+import Settings from '@/pages/Settings'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { AuthProvider } from '@/context/AuthContext'
 
@@ -45,8 +45,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<Settings />} />
           </Route>
-          <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
     </>

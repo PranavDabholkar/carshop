@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { body } from 'express-validator'
 import { validateRequest } from '../middleware/validateRequest'
 import { customerController } from '../controllers/customerController'
+import { requireAuth } from '../middleware/requireAuth'
 
 const router = Router()
 
@@ -14,10 +15,10 @@ const customerSchema = [
 ]
 
 // Routes
-router.get('/', customerController.getAllCustomers)
-router.get('/:id', customerController.getCustomerById)
-router.post('/', customerSchema, validateRequest, customerController.createCustomer)
-router.put('/:id', customerSchema, validateRequest, customerController.updateCustomer)
-router.delete('/:id', customerController.deleteCustomer)
+router.get('/', requireAuth, customerController.getAllCustomers)
+router.get('/:id', requireAuth, customerController.getCustomerById)
+router.post('/', requireAuth, customerSchema, validateRequest, customerController.createCustomer)
+router.put('/:id', requireAuth, customerSchema, validateRequest, customerController.updateCustomer)
+router.delete('/:id', requireAuth, customerController.deleteCustomer)
 
 export default router 

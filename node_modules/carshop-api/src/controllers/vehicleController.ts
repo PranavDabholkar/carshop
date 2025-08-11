@@ -69,6 +69,12 @@ export const vehicleController = {
     try {
       const { make, model, year, vin, licensePlate, color, mileage, customerId } = req.body
 
+      // Ensure customer exists
+      const customer = await prisma.customer.findUnique({ where: { id: customerId } })
+      if (!customer) {
+        return res.status(400).json({ success: false, message: 'Customer does not exist' })
+      }
+
       // Check if VIN already exists
       const existingVehicle = await prisma.vehicle.findUnique({
         where: { vin },
@@ -116,6 +122,13 @@ export const vehicleController = {
       const { id } = req.params
       const { make, model, year, vin, licensePlate, color, mileage, customerId } = req.body
 
+      if (customerId) {
+        const customer = await prisma.customer.findUnique({ where: { id: customerId } })
+        if (!customer) {
+          return res.status(400).json({ success: false, message: 'Customer does not exist' })
+        }
+      }
+
       const vehicle = await prisma.vehicle.update({
         where: { id },
         data: {
@@ -140,6 +153,30 @@ export const vehicleController = {
       })
     } catch (error) {
       console.error('Update vehicle error:', error)
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+      })
+    }
+  },
+
+  async updateVehicleStatus(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      const { status } = req.body as { status: 'ACTIVE' | 'IN_SERVICE' | 'INACTIVE' }
+
+      const vehicle = await prisma.vehicle.update({
+        where: { id },
+        data: { status },
+      })
+
+      res.json({
+        success: true,
+        message: 'Vehicle status updated successfully',
+        data: vehicle,
+      })
+    } catch (error) {
+      console.error('Update vehicle status error:', error)
       res.status(500).json({
         success: false,
         message: 'Internal server error',
