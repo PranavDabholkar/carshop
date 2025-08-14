@@ -27,11 +27,24 @@ jobs:
         run: |
           npm ci
 
+      - name: Validate DATABASE_URL secret
+        working-directory: ./api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL secret is not set for this repository."
+            echo "Set the secret in GitHub: Settings → Secrets → Actions → New repository secret named DATABASE_URL"
+            exit 1
+          fi
+          echo "DATABASE_URL secret found (hidden)."
+
       - name: Run Prisma migrations
         working-directory: ./api
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
+          npx prisma --version
           npx prisma migrate deploy --schema=./prisma/schema.prisma
 
       - name: Run DB seed (if present)
