@@ -18,6 +18,7 @@ const customers_1 = __importDefault(require("./routes/customers"));
 const vehicles_1 = __importDefault(require("./routes/vehicles"));
 const services_1 = __importDefault(require("./routes/services"));
 const activity_1 = __importDefault(require("./routes/activity"));
+const dashboard_1 = __importDefault(require("./routes/dashboard"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env['PORT'] || 3001;
@@ -49,12 +50,15 @@ app.use('/api/customers', customers_1.default);
 app.use('/api/vehicles', vehicles_1.default);
 app.use('/api/services', services_1.default);
 app.use('/api/activity', activity_1.default);
+app.use('/api/dashboard', dashboard_1.default);
 app.use(notFound_1.notFound);
 app.use(errorHandler_1.errorHandler);
-app.listen(PORT, () => {
-    logger_1.logger.info(`🚀 Server running on port ${PORT}`);
-    logger_1.logger.info(`📊 Health check: http://localhost:${PORT}/health`);
-    logger_1.logger.info(`🔗 API Base URL: http://localhost:${PORT}/api`);
-});
+if (!process.env['VERCEL']) {
+    app.listen(PORT, () => {
+        logger_1.logger.info(`🚀 Server running on port ${PORT}`);
+        logger_1.logger.info(`📊 Health check: http://localhost:${PORT}/health`);
+        logger_1.logger.info(`🔗 API Base URL: http://localhost:${PORT}/api`);
+    });
+}
 exports.default = app;
 //# sourceMappingURL=index.js.map

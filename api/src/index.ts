@@ -68,11 +68,13 @@ app.use(notFound)
 // Error handler
 app.use(errorHandler)
 
-// Start server
-app.listen(PORT, () => {
-  logger.info(`🚀 Server running on port ${PORT}`)
-  logger.info(`📊 Health check: http://localhost:${PORT}/health`)
-  logger.info(`🔗 API Base URL: http://localhost:${PORT}/api`)
-})
+// Only start server when not running in serverless environment
+if (!process.env['VERCEL']) {
+  app.listen(PORT, () => {
+    logger.info(`🚀 Server running on port ${PORT}`)
+    logger.info(`📊 Health check: http://localhost:${PORT}/health`)
+    logger.info(`🔗 API Base URL: http://localhost:${PORT}/api`)
+  })
+}
 
-export default app 
+export default app

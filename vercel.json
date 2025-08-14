@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "installCommand": "cd frontend && npm install",
+  "installCommand": "npm install",
   "buildCommand": "cd frontend && npm run build",
   "builds": [
     {
@@ -9,6 +9,10 @@
       "config": {
         "distDir": "dist"
       }
+    },
+    {
+      "src": "api/api.ts",
+      "use": "@vercel/node"
     }
   ],
   "rewrites": [
