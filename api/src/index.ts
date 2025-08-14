@@ -15,6 +15,7 @@ import customerRoutes from './routes/customers'
 import vehicleRoutes from './routes/vehicles'
 import serviceRoutes from './routes/services'
 import activityRoutes from './routes/activity'
+import dashboardRoutes from './routes/dashboard'
 
 // Load environment variables
 dotenv.config()
@@ -59,6 +60,7 @@ app.use('/api/customers', customerRoutes)
 app.use('/api/vehicles', vehicleRoutes)
 app.use('/api/services', serviceRoutes)
 app.use('/api/activity', activityRoutes)
+app.use('/api/dashboard', dashboardRoutes)
 
 // 404 handler
 app.use(notFound)
