@@ -1,8 +1,7 @@
 {
   "framework": "vite",
-  "buildCommand": "npm run build",
+  "buildCommand": "bash vercel-build.sh",
   "outputDirectory": "dist",
-  "installCommand": "npm install",
   "rewrites": [
     {
       "source": "/api/:path*",
