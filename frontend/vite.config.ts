@@ -30,5 +30,10 @@ export default defineConfig({
         },
       },
     },
+    // Add these options to make the build more resilient
+    minify: 'esbuild',
+    emptyOutDir: true,
+    // Increase the build timeout
+    chunkSizeWarningLimit: 1000,
   },
 }) 
