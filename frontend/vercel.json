@@ -1,8 +1,8 @@
 {
   "framework": "vite",
-  "buildCommand": "chmod +x vercel-build.sh && ./vercel-build.sh",
+  "buildCommand": "npx vite build",
   "outputDirectory": "dist",
-  "installCommand": "npm install --force",
+  "installCommand": "npm install",
   "rewrites": [
     {
       "source": "/api/:path*",

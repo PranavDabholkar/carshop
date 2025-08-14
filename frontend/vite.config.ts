@@ -10,6 +10,10 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // Add these for Vercel compatibility
+  optimizeDeps: {
+    exclude: ['@heroicons/react'],
+  },
   server: {
     port: 3000,
     proxy: {
