@@ -35,45 +35,38 @@ export default function Dashboard() {
     const load = async () => {
       setIsLoading(true)
       setError(null)
+      console.log('Starting to load dashboard data...')
       try {
-        const res = await apiClient.get<{ success: boolean; data: ActivityItem[] }>('/activity/recent')
-        setActivity(res.data.data)
-        // Fetch counts in parallel (tolerant to partial failures)
-        const settled = await Promise.allSettled([
-          apiClient.get<{ success: boolean; data: any[] }>('/customers'),
-          apiClient.get<{ success: boolean; data: any[] }>('/vehicles'),
-          apiClient.get<{ success: boolean; data: any[] }>('/services'),
+        // Fetch public stats and activity in parallel
+        const [statsRes, activityRes] = await Promise.all([
+          apiClient.get('/dashboard/public/stats'),
+          apiClient.get('/dashboard/public/activity')
         ])
-        const customersData = settled[0].status === 'fulfilled' ? settled[0].value.data.data : []
-        const vehiclesData = settled[1].status === 'fulfilled' ? settled[1].value.data.data : []
-        const servicesData = settled[2].status === 'fulfilled' ? settled[2].value.data.data : []
-        const customersCount = customersData.length
-        const activeVehicles = vehiclesData.filter((v: any) => v.status === 'ACTIVE').length
-        const servicesCount = servicesData.length
-        // Revenue in INR: sum of ALL services cost (adds whenever a service is added)
-        const revenueNumber = servicesData.reduce((sum: number, s: any) => sum + Number(s.cost ?? 0), 0)
-        const revenue = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(revenueNumber)
+
+        console.log('Dashboard data:', {
+          stats: statsRes.data,
+          activity: activityRes.data
+        })
+
+        // Set activity
+        setActivity(activityRes.data.data)
+
+        // Set stats
+        const { customers, activeVehicles, services, revenue: revenueNumber } = statsRes.data.data
+        const revenue = new Intl.NumberFormat('en-IN', { 
+          style: 'currency', 
+          currency: 'INR', 
+          maximumFractionDigits: 2 
+        }).format(revenueNumber)
         setStats([
-          { name: 'Total Customers', value: String(customersCount), icon: UsersIcon },
+          { name: 'Total Customers', value: String(customers), icon: UsersIcon },
           { name: 'Active Vehicles', value: String(activeVehicles), icon: TruckIcon },
-          { name: 'Services', value: String(servicesCount), icon: WrenchScrewdriverIcon },
+          { name: 'Services', value: String(services), icon: WrenchScrewdriverIcon },
           { name: 'Revenue', value: revenue, icon: CurrencyDollarIcon },
         ])
       } catch (e: any) {
-        const status = e?.response?.status
-        if (status === 401 || status === 403) {
-          // Not authenticated or not allowed → show empty state rather than error
-          setActivity([])
-          setError(null)
-          setStats([
-            { name: 'Total Customers', value: '—', icon: UsersIcon },
-            { name: 'Active Vehicles', value: '—', icon: TruckIcon },
-            { name: 'Services', value: '—', icon: WrenchScrewdriverIcon },
-            { name: 'Revenue', value: '—', icon: CurrencyDollarIcon },
-          ])
-        } else {
-          setError(e?.response?.data?.message || 'Failed to load activity')
-        }
+        // Always show an error message if loading fails, regardless of auth status
+        setError(e?.response?.data?.message || 'Failed to load activity')
       } finally {
         setIsLoading(false)
       }
