@@ -34,8 +34,18 @@ const limiter = rateLimit({
 app.use(helmet())
 app.use(compression())
 app.use(limiter)
+// Configure CORS with a whitelist. FRONTEND_URL may be a comma-separated list of allowed origins.
+const frontendOrigins = (process.env['FRONTEND_URL'] || 'http://localhost:3000')
+  .split(',')
+  .map((s) => s.trim())
+
 app.use(cors({
-  origin: process.env['FRONTEND_URL'] || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    // Allow non-browser requests (e.g., curl, server-side) where origin is undefined
+    if (!origin) return callback(null, true)
+    if (frontendOrigins.includes(origin)) return callback(null, true)
+    return callback(new Error('CORS not allowed for origin ' + origin))
+  },
   credentials: true,
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
 }))

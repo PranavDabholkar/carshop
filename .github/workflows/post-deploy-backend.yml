@@ -1,0 +1,51 @@
+name: Post-deploy backend tasks
+
+on:
+  push:
+    branches: [ ui-update, main ]
+
+jobs:
+  run-backend-tasks:
+    runs-on: ubuntu-latest
+    env:
+      NODE_VERSION: '18'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies (root/workspaces)
+        run: |
+          npm ci
+
+      - name: Install API dependencies
+        working-directory: ./api
+        run: |
+          npm ci
+
+      - name: Run Prisma migrations
+        working-directory: ./api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          npx prisma migrate deploy --schema=./prisma/schema.prisma
+
+      - name: Run DB seed (if present)
+        working-directory: ./api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -f ./prisma/seed.ts ] || [ -f ./prisma/seed.js ]; then
+            npm run db:seed || true
+          else
+            echo "No seed script found, skipping."
+          fi
+
+      - name: Notify (optional)
+        if: always()
+        run: |
+          echo "Post-deploy backend tasks complete."
